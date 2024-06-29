@@ -1,12 +1,39 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { BookService, NBook } from './app.service';
+import { Book } from './fakeDatabase';
+import { error } from 'console';
 
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+@Controller('books')
+export class BooksController {
+  constructor(private readonly bookService: BookService) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getallBooks(): Book[] {
+    return this.bookService.getAllBooks();
+  }
+
+  @Get('getById/:id')
+  getBookByID(@Param('id') id : string): NBook {
+    const book_id = +id;
+    return this.bookService.findById(book_id)
+  }
+
+  @Post()
+  addBook(@Body() book : Partial<Book>): NBook {
+    const book_data = book;
+
+    if (!book.author || !book.publicationYear || !book.title) return undefined;
+
+    return this.bookService.create(book_data);
+  }
+
+  @Put(':id')
+  updateBook(@Param('id') id: string, @Body() book: Partial<Book>): NBook {
+    return this.bookService.update(+id, book);
+  }
+
+  @Delete()
+  delete(@Param('id') id: string) : Book[]{
+    return this.delete(id);
   }
 }
